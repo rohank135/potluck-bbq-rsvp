@@ -366,22 +366,17 @@
 
     button:active{transform:translateY(2px);box-shadow:0 5px 0 rgba(0,0,0,.12)}
 
+    .closed-message{
+      text-align:center;
+      padding:22px 10px;
+    }
 
-.rsvp-closed-btn{
-  background:white !important;
-  color:var(--orange) !important;
-  border:3px solid var(--orange);
-  cursor:not-allowed;
-  opacity:1;
-  box-shadow:none;
-}
-
-.rsvp-closed-btn:disabled{
-  background:white !important;
-  color:var(--orange) !important;
-  opacity:1;
-}
-
+    .closed-message p:first-child{
+      font-size:1.2rem;
+      font-weight:800;
+      color:var(--navy);
+      line-height:1.45;
+    }
 
     .note{
       color:#5d6470;
@@ -484,16 +479,12 @@
 
     
 <section class="section">
-  <h2>RSVPs Closed</h2>
-  <div style="text-align:center;padding:20px 10px;">
-    <p style="font-size:1.2rem;font-weight:700;color:var(--navy);">
-      Thanks everyone! RSVP submissions are now closed.
-    </p>
-    <p class="note" style="margin-top:10px;">
-      We look forward to seeing everyone at the BBQ!
-    </p>
-  </div>
-</section>
+      <h2>RSVPs Closed</h2>
+      <div class="closed-message">
+        <p>Thanks everyone! RSVP submissions are now closed.</p>
+        <p class="note" style="margin-top:10px;">We look forward to seeing everyone at the BBQ!</p>
+      </div>
+    </section>
 
 
     <div class="footer">Can't wait to see you all! 💛</div>
@@ -540,7 +531,7 @@
         document.getElementById("familyCount").textContent = data.households || 0;
 
         if(!data.items || data.items.length === 0){
-          list.innerHTML = "<div class='potluck-item'>No potluck items yet. Be the first to RSVP!</div>";
+          list.innerHTML = "<div class='potluck-item'>No potluck items are listed yet.</div>";
           return;
         }
 
@@ -553,24 +544,6 @@
         list.innerHTML = "<div class='potluck-item'>Potluck list could not load right now. Please refresh in a bit.</div>";
       }
     }
-
-    document.getElementById("rsvpForm").addEventListener("submit", async function(e){
-      e.preventDefault();
-
-      const form = e.target;
-      const button = form.querySelector("button");
-      const success = document.getElementById("successMessage");
-      const data = Object.fromEntries(new FormData(form));
-
-      button.disabled = true;
-      button.textContent = "Submitting...";
-      success.style.display = "none";
-
-      try{
-        await fetch(API_URL, {
-          method:"POST",
-          body:JSON.stringify(data)
-        });
 
         const totalPeople = 1 + Number(data.guestCount || 0);
         success.innerHTML = `🎉 Thanks, ${escapeHtml(data.name)}! Got your RSVP for ${totalPeople} ${totalPeople === 1 ? "person" : "people"}.`;
@@ -587,12 +560,6 @@
 
     loadPotluck();
   </script>
-
-<script>
-document.querySelectorAll('#rsvpForm input, #rsvpForm select, #rsvpForm textarea').forEach(el => {
-  el.disabled = true;
-});
-</script>
 
 </body>
 </html>
