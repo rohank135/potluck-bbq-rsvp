@@ -507,9 +507,6 @@
       document.getElementById("seconds").textContent = Math.floor((safeDiff / 1000) % 60);
     }
 
-    setInterval(updateCountdown, 1000);
-    updateCountdown();
-
     function escapeHtml(text){
       if(!text) return "";
       return text.toString()
@@ -522,13 +519,23 @@
 
     async function loadPotluck(){
       const list = document.getElementById("potluckList");
+      const attendingCount = document.getElementById("attendingCount");
+      const familyCount = document.getElementById("familyCount");
 
       try{
-        const response = await fetch(API_URL + "?action=list");
+        const response = await fetch(API_URL + "?action=list&cacheBust=" + Date.now(), {
+          method: "GET",
+          cache: "no-store"
+        });
+
+        if(!response.ok){
+          throw new Error("Network response was not ok");
+        }
+
         const data = await response.json();
 
-        document.getElementById("attendingCount").textContent = data.attending || 0;
-        document.getElementById("familyCount").textContent = data.households || 0;
+        attendingCount.textContent = data.attending || 0;
+        familyCount.textContent = data.households || 0;
 
         if(!data.items || data.items.length === 0){
           list.innerHTML = "<div class='potluck-item'>No potluck items are listed yet.</div>";
@@ -541,25 +548,16 @@
           </div>
         `).join("");
       }catch(error){
+        console.error("Potluck list load failed:", error);
         list.innerHTML = "<div class='potluck-item'>Potluck list could not load right now. Please refresh in a bit.</div>";
       }
     }
 
-        const totalPeople = 1 + Number(data.guestCount || 0);
-        success.innerHTML = `🎉 Thanks, ${escapeHtml(data.name)}! Got your RSVP for ${totalPeople} ${totalPeople === 1 ? "person" : "people"}.`;
-        success.style.display = "block";
-        form.reset();
-        await loadPotluck();
-      }catch(error){
-        alert("Something went wrong. Please try again.");
-      }finally{
-        button.disabled = false;
-        button.textContent = "Submit RSVP";
-      }
+    document.addEventListener("DOMContentLoaded", function(){
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+      loadPotluck();
     });
-
-    loadPotluck();
   </script>
-
 </body>
 </html>
